@@ -61,6 +61,22 @@ function getNextResetDateInMs() {
 	return timeleft;
 }
 
+async function updateMsg(upMsg, code, child) {
+	const embed = new RichEmbed(upMsg.embeds[0]);
+	switch (code) {
+	case 0:
+		embed.setDescription('☑ Update successful').setFooter(`exit code: ${code}`);
+		await upMsg.edit(embed);
+		child.kill();
+		return;
+	default:
+		embed.setDescription('⚠ Update failed').setFooter(`exit code: ${code}`);
+		await upMsg.edit(embed);
+		child.kill();
+		return;
+	}
+}
+
 function getAstolfosButt(isTimed = true, msg = 0) {
 	rp(options)
 		.then(($) => {
@@ -93,6 +109,35 @@ function getAstolfosButt(isTimed = true, msg = 0) {
 		});
 }
 
+async function gitUpdate(msg) {
+	const isLunix = process.platform === 'linux';
+	const isWin = process.platform === 'win32';
+	const upEmbed = new RichEmbed()
+		.setTitle('Update')
+		.setColor(msg.guild ? msg.guild.me.displayColor : 'DEFAULT')
+		.setDescription('📡 Getting new update(s)...');
+
+	let upMsg = await msg.channel.send(upEmbed);
+	if (isLunix) {
+		const { exec } = require('child_process');
+		const sh = exec(__dirname + `/../../../${this.name}.sh`);
+
+		sh.stdout.on('data', data => console.log(data.toString()));
+		sh.stderr.on('data', data => console.log(data.toString()));
+		sh.on('exit', code => updateMsg(upMsg, code, sh));
+		return;
+	} else if (isWin) {
+		const { spawn } = require('child_process');
+		const bat = spawn(__dirname + `/../../src/scripts/${this.name}.bat`);
+
+		bat.stdout.on('data', data => console.log(data.toString()));
+		bat.stderr.on('data', data => console.log(data.toString()));
+		bat.on('exit', (code) => updateMsg(upMsg, code, bat));
+		return;
+	}
+
+}
+
 client
 	.on('ready', () => {
 		log(`Logged in as ${client.user.tag}!`);
@@ -103,7 +148,12 @@ client
 			isNotTimerSet = false;
 		}
 	}).on('message', msg => {
-		if(msg.content.startsWith(prefix + 'PostAstolfo')) getAstolfosButt(false, msg);
+		try {
+			if (msg.content.startsWith(prefix + 'PostAstolfo')) getAstolfosButt(false, msg);
+			if (msg.content.startsWith(prefix + 'update')) gitUpdate(msg);
+		} catch (error) {
+			console.error(error);
+		}
 	}).on('error', console.error)
 	.on('warn', console.warn)
 	.on('degub', console.log)
