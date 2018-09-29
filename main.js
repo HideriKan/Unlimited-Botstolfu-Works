@@ -45,7 +45,7 @@ function log(...msgArr) {
 }
 
 function getNextResetDateInMs() {
-	let resetHour = 22;
+	let resetHour = 12;
 	let now = new Date();
 	let nowUTC = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds());
 	let nextDate = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), resetHour, 0, 0, 0);
@@ -120,7 +120,7 @@ async function gitUpdate(msg) {
 	let upMsg = await msg.channel.send(upEmbed);
 	if (isLunix) {
 		const { exec } = require('child_process');
-		const sh = exec(__dirname + `/../../../${this.name}.sh`);
+		const sh = exec(__dirname + '/../update.sh');
 
 		sh.stdout.on('data', data => console.log(data.toString()));
 		sh.stderr.on('data', data => console.log(data.toString()));
@@ -128,7 +128,7 @@ async function gitUpdate(msg) {
 		return;
 	} else if (isWin) {
 		const { spawn } = require('child_process');
-		const bat = spawn(__dirname + `/../../src/scripts/${this.name}.bat`);
+		const bat = spawn(__dirname + '/scripts/update.bat');
 
 		bat.stdout.on('data', data => console.log(data.toString()));
 		bat.stderr.on('data', data => console.log(data.toString()));
