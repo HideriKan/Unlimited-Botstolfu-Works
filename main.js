@@ -6,7 +6,7 @@ const rp = require('request-promise');
 const cheerio = require('cheerio');
 
 const client = new Discord.Client();
-const channelsToSend = ['296984061287596032' /*,'146493901803487233'*/];
+const channelsToSend = ['296984061287596032' ,'492965161787981824'];
 const prefix = '--';
 const host = 'http://unlimitedastolfo.works';
 const options = {
@@ -56,7 +56,7 @@ function getNextResetDateInMs() {
 		timeleft = nextDate - nowUTC;
 	}
 
-	log('next Date:'+nextDate, 'ms left:'+timeleft);
+	log('next Date:'+ nextDate, 'ms left:'+timeleft);
 
 	return timeleft;
 }
@@ -90,13 +90,17 @@ function getAstolfosButt(isTimed = true, msg = 0) {
 				.setURL(host + '/post/view/' + linkID[0])
 				.setImage(astolfoLink);
 
-			channelsToSend.forEach(id => {
-				client.channels.get(id).send(embed);
-			});
 
 			log('posted' ,astolfoLink);
 
-			if (isTimed) setTimeout(getAstolfosButt, getNextResetDateInMs());
+			if (isTimed) {
+				setTimeout(getAstolfosButt, getNextResetDateInMs());
+				channelsToSend.forEach(id => {
+					client.channels.get(id).send(embed);
+				});
+			} else {
+				msg.channel.send(embed);
+			}
 		})
 		.catch((err) => {
 			log(err, '\nretrying', cou);
@@ -150,7 +154,8 @@ client
 	}).on('message', msg => {
 		try {
 			if (msg.content.startsWith(prefix + 'PostAstolfo')) getAstolfosButt(false, msg);
-			if (msg.content.startsWith(prefix + 'update')) gitUpdate(msg);
+			if (msg.content.startsWith(prefix + 'update') && msg.author.id === '146493901803487233') gitUpdate(msg);
+			if (msg.content.startsWith(prefix + 'bye') && msg.author.id === '146493901803487233') process.exit();
 		} catch (error) {
 			console.error(error);
 		}
