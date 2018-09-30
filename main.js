@@ -153,9 +153,9 @@ client
 		}
 	}).on('message', msg => {
 		try {
-			if (msg.content.startsWith(prefix + 'PostAstolfo')) getAstolfosButt(false, msg);
-			if (msg.content.startsWith(prefix + 'update') && msg.author.id === '146493901803487233') gitUpdate(msg);
-			if (msg.content.startsWith(prefix + 'bye') && msg.author.id === '146493901803487233') process.exit();
+			if (msg.content.toLocaleLowerCase() === `${prefix}postastolfo`) getAstolfosButt(false, msg);
+			if (msg.content.toLocaleLowerCase() === `${prefix}update` && msg.author.id === '146493901803487233') gitUpdate(msg);
+			if (msg.content.toLocaleLowerCase() === `${prefix}bye` && msg.author.id === '146493901803487233') process.exit();
 		} catch (error) {
 			console.error(error);
 		}
