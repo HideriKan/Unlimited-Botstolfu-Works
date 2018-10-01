@@ -103,12 +103,14 @@ function getAstolfosButt(isTimed = true, msg = 0) {
 			}
 		})
 		.catch((err) => {
-			log(err, '\nretrying', cou);
+			log(err, 'retrying', cou);
 			if (cou > 5 && !isTimed) {
-				return msg.reply('Tried 5 times and Erroed');
+				return msg.reply('Tried 5 times and Errored');
+			} else if (!isTimed) {
+				cou++;
+				getAstolfosButt(false, msg);
 			} else {
 				getAstolfosButt();
-				cou++;
 			}
 		});
 }
