@@ -1,6 +1,6 @@
 {
   "name": "unlimited-botstolfu-works",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Bot for Unlimited Astolfo Works",
   "main": "main.js",
   "scripts": {
@@ -12,11 +12,8 @@
   "author": "keinschimer",
   "license": "ISC",
   "dependencies": {
-    "cheerio": "^1.0.0-rc.2",
-    "discord.js": "^11.4.2",
-    "jsdom": "^12.0.0",
-    "parse5-parser-stream": "^5.1.0",
-    "request": "^2.88.0",
-    "request-promise": "^4.2.2"
+    "discord.js": "^12.5.1",
+    "eslint": "^7.21.0",
+    "node-fetch": "^2.6.1"
   }
 }
