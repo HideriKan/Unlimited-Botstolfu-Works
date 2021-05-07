@@ -1,9 +1,9 @@
 // Imports
-const {Client, MessageEmbed} = require('discord.js');
+const { Client, MessageEmbed } = require('discord.js');
 const client = new Client();
 const fetch = require('node-fetch');
 // Globals 
-const {token, prefix, channelsToSend, authorID} = require('./config.json');
+const { token, prefix, channelsToSend, authorID } = require('./config.json');
 const g_host = 'https://danbooru.donmai.us/posts/';
 const g_randomQuery = 'random.json?tags=astolfo_%28fate%29';
 let g_isNotTimerSet = true;
@@ -47,12 +47,21 @@ async function getAstolfosButt(isTimed = true, msg = 0) {
 	if (isTimed) {
 		setTimeout(getAstolfosButt, getNextResetDateInMs());
 		channelsToSend.forEach(id => {
-			client.channels.get(id).send(embed);
+			msg.channel.fetch(id)	
+				.then(ch => {
+					ch.send(embed);
+					console.log(`Send a ${g_host + json.id} into ${ch}`);
+				})
+				.catch(err => console.error(err));
 		});
 	} else {
-		msg.channel.send(embed);
+		msg.channel.fetch('296984061287596032')
+			.then(ch => {
+				ch.send(embed);
+				console.log(`Send a ${g_host + json.id} into ${ch}`);
+			})
+			.catch(err => console.error(err));
 	}
-	console.log('send ' + g_host + json.id);
 }
 
 client
@@ -75,5 +84,5 @@ client
 	.on('degub', console.log)
 	.on('disconnect', () => console.warn('Disconnected!'))
 	.on('reconnecting', () => console.warn('Reconnecting...'));
-	
+
 client.login(token);
