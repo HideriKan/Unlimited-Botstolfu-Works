@@ -47,25 +47,23 @@ async function getAstolfosButt(isTimed = true, msg = 0) {
 	if (isTimed) {
 		setTimeout(getAstolfosButt, getNextResetDateInMs());
 		channelsToSend.forEach(id => {
-			msg.channel.fetch(id)	
-				.then(ch => {
-					ch.send(embed);
-					console.log(`Send a ${g_host + json.id} into ${ch}`);
-				})
+			client.channels.fetch(id)	
+				.then(ch => 
+					ch.send(embed)
+						.then(msg => console.log(`Send a ${g_host + json.id} into ${msg.channel}`))
+						.catch(err => console.error(err))
+				)
 				.catch(err => console.error(err));
 		});
 	} else {
-		msg.channel.fetch('296984061287596032')
-			.then(ch => {
-				ch.send(embed);
-				console.log(`Send a ${g_host + json.id} into ${ch}`);
-			})
+		msg.channel.send(embed)
+			.then(msg => console.log(`Send a ${g_host + json.id} into ${msg.channel}`))
 			.catch(err => console.error(err));
 	}
 }
 
 client
-	.on('ready', () => {
+	.once('ready', () => {
 		console.log(`Logged in as ${client.user.tag}!`);
 
 		if (g_isNotTimerSet) {
