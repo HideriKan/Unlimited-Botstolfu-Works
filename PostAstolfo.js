@@ -25,6 +25,7 @@ class PostAstolfo {
 			timeLeft = nextDate - nowUTC;
 		}
 
+		console.log(`Next post in ${timeLeft}`);
 		return timeLeft;
 	}
 
@@ -62,7 +63,7 @@ class PostAstolfo {
 		setTimeout(this.startLoop, this.getNextResetDateInMs());
 		channelsToSend.forEach(id => {
 			this.client.channels.fetch(id)
-				.then(async ch =>
+				.then(ch =>
 					ch.send({ embeds: [embed] })
 						// .then(msg => console.log(`Send a ${g_host + json.id} into ${msg.channel}`))
 						.catch(err => console.error(err))
