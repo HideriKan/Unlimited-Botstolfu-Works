@@ -1,86 +1,38 @@
-// Imports
-const { Client, MessageEmbed } = require('discord.js');
-const client = new Client();
-const fetch = require('node-fetch');
-// Globals 
-const { token, prefix, channelsToSend, authorID } = require('./config.json');
-const g_host = 'https://danbooru.donmai.us/posts/';
-const g_randomQuery = 'random.json?tags=astolfo_%28fate%29';
-let g_isNotTimerSet = true;
+const fs = require('node:fs');
+const path = require('node:path');
+const { Client, Events, GatewayIntentBits, Collection } = require('discord.js');
+const { token, tokenBeta, isBeta } = require('./config.json');
 
-/**
- * @returns when to post the next image in ms 
- */
-function getNextResetDateInMs() {
-	let resetHour = 12;
-	let now = new Date();
-	let nowUTC = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds());
-	let nextDate = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), resetHour, 0, 0, 0);
-	let timeleft = nextDate - nowUTC;
+// Create a new client instance
+const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
-	if (now.getUTCHours() >= resetHour) {
-		nextDate.setDate(nowUTC.getUTCDate() + 1);
-		timeleft = nextDate - nowUTC;
-	}
+const eventsPath = path.join(__dirname, 'events');
+const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'));
 
-	console.log('next Date:' + nextDate, 'ms left:' + timeleft);
+for (const file of eventFiles) {
+	const filePath = path.join(eventsPath, file);
+	const event = require(filePath);
 
-	return timeleft;
+	if (event.once)
+		client.once(event.name, (...args) => event.execute(...args));
+	else
+		client.on(event.name, (...args) => event.execute(...args));
 }
 
-async function getAstolfosButt(isTimed = true, msg = 0) {
-	const emote = client.emojis.resolve('492762244304732165');
-	let json;
-	do { // the bot has difficulties connecting sometimes, hope this can fix it. 
-		json = await fetch(g_host + g_randomQuery)
-			.then(res => res.json())
-			.catch(err => console.error(err));
-	} while (json.id === undefined);
+client.commands = new Collection();
 
-	const embed = new MessageEmbed()
-		.setTitle(`${emote} Daily Astolfo ${emote}`)
-		.setURL(g_host + json.id)
-		.setImage(json.file_url)
-		.setFooter('Score: ' + json.score)
-		.setTimestamp(json.created_at);
+const commandsPath = path.join(__dirname, 'commands');
+const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
 
-	if (isTimed) {
-		setTimeout(getAstolfosButt, getNextResetDateInMs());
-		channelsToSend.forEach(id => {
-			client.channels.fetch(id)	
-				.then(ch => 
-					ch.send(embed)
-						.then(msg => console.log(`Send a ${g_host + json.id} into ${msg.channel}`))
-						.catch(err => console.error(err))
-				)
-				.catch(err => console.error(err));
-		});
-	} else {
-		msg.channel.send(embed)
-			.then(msg => console.log(`Send a ${g_host + json.id} into ${msg.channel}`))
-			.catch(err => console.error(err));
-	}
+for (const file of commandFiles) {
+	const filePath = path.join(commandsPath, file);
+	const command = require(filePath);
+
+	if ('data' in command && 'execute' in command)
+		client.commands.set(command.data.name, command);
+	else
+		console.log(`[Warning] The command at ${filePath} is missing a required "data" or "execute" property.`);
 }
 
-client
-	.once('ready', () => {
-		console.log(`Logged in as ${client.user.tag}!`);
-
-		if (g_isNotTimerSet) {
-			setTimeout(getAstolfosButt, getNextResetDateInMs());
-			g_isNotTimerSet = false;
-		}
-	}).on('message', msg => {
-		try {
-			if (msg.content.toLocaleLowerCase() === `${prefix}postastolfo`) getAstolfosButt(false, msg);
-			if (msg.content.toLocaleLowerCase() === `${prefix}bye` && msg.author.id === authorID) process.exit();
-		} catch (error) {
-			console.error(error);
-		}
-	}).on('error', console.error)
-	.on('warn', console.warn)
-	.on('degub', console.log)
-	.on('disconnect', () => console.warn('Disconnected!'))
-	.on('reconnecting', () => console.warn('Reconnecting...'));
-
-client.login(token);
+// Log in to Discord with your client's token
+client.login(isBeta ? tokenBeta : token);

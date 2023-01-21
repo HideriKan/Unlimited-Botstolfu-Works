@@ -1,19 +1,23 @@
 {
-  "name": "unlimited-botstolfu-works",
+  "name": "ubw",
   "version": "2.0.0",
-  "description": "Bot for Unlimited Astolfo Works",
+  "description": "",
   "main": "main.js",
   "scripts": {
     "start": "node ."
   },
-  "keywords": [
-    "Astolfo"
-  ],
-  "author": "keinschimer",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/keinschimer/Unlimited-Botstolfu-Works.git"
+  },
+  "author": "Hideri",
   "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/keinschimer/Unlimited-Botstolfu-Works/issues"
+  },
+  "homepage": "https://github.com/keinschimer/Unlimited-Botstolfu-Works#readme",
   "dependencies": {
-    "discord.js": "^12.5.1",
-    "eslint": "^7.21.0",
-    "node-fetch": "^2.6.1"
+    "discord.js": "^14.7.1",
+    "undici": "^5.15.1"
   }
 }
