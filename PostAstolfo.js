@@ -1,19 +1,17 @@
 const { EmbedBuilder } = require("discord.js");
 const { channelsToSend } = require('./config.json');
-const { request, fetch, Agent, RedirectHandler } = require('undici');
+const { fetch, Agent } = require('undici');
 
 class PostAstolfo {
-	constructor(client) {
-		this.client = client; // prob not the way to do it but its my way
-	}
-
+	static client; // prob not the way to do it but its my way
 	static host = 'https://danbooru.donmai.us/posts/';
 	static randomQuery = 'random.json?tags=astolfo_%28fate%29';
 	static isTimerSet = false;
+
 	/**
 	  * @returns when to post the next image in ms 
 	  */
-	getNextResetDateInMs() {
+	static getNextResetDateInMs() {
 		let resetHourUTC = 12;
 		let now = new Date();
 		let nowUTC = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds());
@@ -29,7 +27,7 @@ class PostAstolfo {
 		return timeLeft;
 	}
 
-	async getRandomPost() {
+	static async getRandomPost() {
 		const query = PostAstolfo.host + PostAstolfo.randomQuery;
 		const res = await fetch(query, {
 			dispatcher: new Agent({
@@ -43,10 +41,10 @@ class PostAstolfo {
 		return json;
 	}
 
-	async getEmbed() {
-		const json = await this.getRandomPost();
+	static async getEmbed() {
+		const json = await PostAstolfo.getRandomPost();
 
-		const emote = this.client.emojis.resolve('492762244304732165');
+		const emote = PostAstolfo.client.emojis.resolve('492762244304732165');
 		const embed = new EmbedBuilder()
 			.setTitle(`${emote} Daily Astolfo ${emote}`)
 			.setURL(PostAstolfo.host + json.id)
@@ -57,12 +55,12 @@ class PostAstolfo {
 		return embed;
 	}
 
-	async startLoop() {
-		const embed = await this.getEmbed();
+	static async startLoop() {
+		const embed = await PostAstolfo.getEmbed();
 
-		setTimeout(this.startLoop, this.getNextResetDateInMs());
+		setTimeout(PostAstolfo.startLoop, PostAstolfo.getNextResetDateInMs());
 		channelsToSend.forEach(id => {
-			this.client.channels.fetch(id)
+			PostAstolfo.client.channels.fetch(id)
 				.then(ch =>
 					ch.send({ embeds: [embed] })
 						// .then(msg => console.log(`Send a ${g_host + json.id} into ${msg.channel}`))
