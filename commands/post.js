@@ -13,8 +13,7 @@ module.exports = {
 	async execute(interaction) {
 		await interaction.deferReply();
 
-		const post = new PostAstolfo(interaction.client);
-		const embed = await post.getEmbed();
+		const embed = await PostAstolfo.getEmbed();
 
 		await interaction.editReply({ embeds: [embed] });
 	}
