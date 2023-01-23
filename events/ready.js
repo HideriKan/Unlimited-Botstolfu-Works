@@ -9,7 +9,8 @@ module.exports = {
 	execute(client) {
 		console.log(`Ready! Logged in as ${client.user.tag}`);
 
-		loopPosting = new PostAstolfo();
+		// loopPosting = new PostAstolfo();
+		PostAstolfo.client = client;
 		setTimeout(PostAstolfo.startLoop, PostAstolfo.getNextResetDateInMs());
 	}
 };
